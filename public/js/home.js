@@ -49,6 +49,10 @@ console.log(contatos)
 
 //função que mostra todos os contatos
 let showContatos = (contatos) => {
+    
+    // limpando o main
+    let main = document.querySelector("main");
+    main.innerHTML = "";
 
     //fazer um for percorrendo essse contatos
     contatos.forEach(
@@ -83,17 +87,71 @@ let showContatos = (contatos) => {
                 </ul>
                 <a href="#">Editar</a>
             `;
+
             //adicionar o código html ao elemento section
             section.innerHTML = html;
 
-            //adicionando a section do contato no main
-                //capturar o main (queryselector)
-                    let main = document.querySelector("main");
-
-                    //adicionar a section ao main
-                    main.appendChild(section);
+            //adicionar a section ao main
+            main.appendChild(section);
 
         }
     );
 }
+
+let buscaContatos = (trecho)=>{
+
+    //filtrar dos contatos somente os que possuem o trecho no nome
+    let contatosFiltrados = contatos.filter(
+        c => c.nome.includes(trecho)
+    )
+
+    //mostrar os contatos filtrados
+        showContatos(contatosFiltrados);
+
+}
+
 showContatos(contatos);
+
+search.addEventListener('keyup', (e) => buscaContatos(e.target.value));
+
+//função para exibir o modal
+let mostrarModal = () => {
+    modal.style.display = "flex";
+    modal.style.opacity = 1;
+    inputParaFocus.focus()
+};
+
+//capturando o botão de adicionar contatos
+let link = document.getElementById("linkAbrirModal");
+
+//adicionando evento ao botão
+link.addEventListener('click', mostrarModal)
+
+//capturando o modal
+const modal = document.getElementById("modal")
+
+//capturando o botão de cancelar
+const cancelButton = document.querySelector('#modal button.link');
+
+//função para esconder o modal
+let esconderModal = (evt) => {
+     evt.bubbles = false;
+     modal.style.display = "none"
+     modal.style.opacity = 0;
+};
+
+//adicionar o evento e chamar a função esconder o modal
+cancelButton.addEventListener('click', esconderModal);
+
+//fechar o modal clicando fora dele
+modal.addEventListener('click', esconderModal);
+
+//capturar o input para focus
+const inputParaFocus = document.querySelector('#modal input[name="nome"]')
+
+//fechar o modal com o ESC do teclado
+modal.addEventListener('keyup', e => {
+    if (e.key === 'Escape'){
+        esconderModal(e)
+    }
+})
