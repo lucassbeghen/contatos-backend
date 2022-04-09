@@ -6,7 +6,71 @@ const contatoController = {
     index: async (req,res)=>{
         let sql = `SELECT id, nome FROM contatos WHERE usuarios_id=${uid}`;
         let contatos = await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
-        res.status(200).json(contatos);
+        
+        //adicionando campos de telefones e emails
+        contatos = contatos.map(
+            c =>{
+                c.emails = [];
+                c.telefones = [];
+                return c;
+            }
+        )
+
+            //carregando os telefones dos contatos  do usuário de id  "uid"
+                sql = `
+                    SELECT
+                        t.id,
+                        t.telefone,
+                        t.contatos_id
+                    FROM
+                        contatos c
+                        INNER JOIN telefones t on t.contatos_id=c.id
+                    WHERE
+                    usuarios_id=${uid};
+
+                `
+                let telefones = await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
+
+                //carregando os emails dos contatos do usuário de id=uid
+                sql = `SELECT
+                        e.id,
+                        e.email,
+                        e.contatos_id
+                    FROM
+                        contatos c
+                        INNER JOIN emails e on e.contatos_id=c.id
+                 WHERE
+                        usuarios_id=${uid};
+                `
+                let  emails =  await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
+
+                // inserindo os emails carregados nos seus respectivos contatos
+                emails.forEach(
+
+                    email => {
+                        //encontrar o contato que é dono deste email
+                        let contato = contatos.find(c => c.id == email.contatos_id);
+
+                        //adicionar ao o array de emails desse contato o email da vez
+                        contato.emails.push(email.email);
+                    }
+
+                );
+
+                // inserindo os telefones carregados nos seus respectivos contatos
+                telefones.forEach(
+
+                    telefone => {
+                        //encontrar o contato que é dono deste telefone
+                        let contato = contatos.find(c => c.id == telefone.contatos_id);
+
+                        //adicionar ao o array de telefones desse contato o telefone da vez
+                        contato.telefones.push(telefone.telefone);
+                    }
+
+                );
+
+        res.status(200).json({contatos});
     },
     show: async (req,res)=>{
         let sql = `SELECT id, nome FROM contatos WHERE usuarios_id=${uid} AND id=${req.params.id}`;
