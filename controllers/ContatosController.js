@@ -1,120 +1,137 @@
-const { sequelize } = require('../database/models');
-const uid = 1;
+/**
+ * Lista de Método do Controller
+ * 
+ * 1 - index: Listar muitos (get '/contatos')
+ * 2 - show: Levantar um contato (get '/contatos/:id');
+ * 3 - create: Salvar um novo contato (post '/contatos')
+ * 4 - destroy: Remove um contato (delete '/contatos/:id')
+ * 5 - update: Altera um contato (put '/contatos/:id')
+ */
 
-const contatoController = {
+const {sequelize} = require('../database/models');
 
-    index: async (req,res)=>{
+// const uid = 1;
+
+module.exports = {
+    index: async (req,res) => {
+
+        // Capturar o id do usuário que está mandando a requisição:
+        let uid = req.usuario.id;
+        
         let sql = `SELECT id, nome FROM contatos WHERE usuarios_id=${uid}`;
         let contatos = await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
-        
-        //adicionando campos de telefones e emails
+
+        // Adicionando campos de telefones e emails
         contatos = contatos.map(
-            c =>{
+            c => {
                 c.emails = [];
                 c.telefones = [];
                 return c;
             }
         )
 
-            //carregando os telefones dos contatos  do usuário de id  "uid"
-                sql = `
-                    SELECT
-                        t.id,
-                        t.telefone,
-                        t.contatos_id
-                    FROM
-                        contatos c
-                        INNER JOIN telefones t on t.contatos_id=c.id
-                    WHERE
-                    usuarios_id=${uid};
+        // Carregando os telefones dos contatos do usuário de id "uid";
+        sql = `
+            select
+                t.id,
+                t.telefone,
+                t.contatos_id
+            from
+                contatos c
+                inner join telefones t on t.contatos_id=c.id
+            where
+                usuarios_id=${uid};
+        `
+        let telefones = await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
+        
 
-                `
-                let telefones = await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
+        // Carregando os emails dos contatos do usuário de id "uid"
+        sql = `
+            select
+                e.id,
+                e.email,
+                e.contatos_id
+            from
+                contatos c
+                inner join emails e on e.contatos_id=c.id
+            where
+                usuarios_id=${uid};
+        `
+        let emails = await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
+        
+        
+        // Inserindo os emails carregados nos seus respectivos contatos
+        emails.forEach(
+            
+            email => {
 
-                //carregando os emails dos contatos do usuário de id=uid
-                sql = `SELECT
-                        e.id,
-                        e.email,
-                        e.contatos_id
-                    FROM
-                        contatos c
-                        INNER JOIN emails e on e.contatos_id=c.id
-                 WHERE
-                        usuarios_id=${uid};
-                `
-                let  emails =  await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
+                // Encontrar o contato que é dono deste email
+                let contato = contatos.find(c => c.id == email.contatos_id);
 
-                // inserindo os emails carregados nos seus respectivos contatos
-                emails.forEach(
+                // Adicionar ao array de emails desse contato o email da vez!
+                contato.emails.push(email.email);
 
-                    email => {
-                        //encontrar o contato que é dono deste email
-                        let contato = contatos.find(c => c.id == email.contatos_id);
+            }
+        
+        );
 
-                        //adicionar ao o array de emails desse contato o email da vez
-                        contato.emails.push(email.email);
-                    }
+        // Inserindo os telefones carregados nos seus respectivos contatos
+        telefones.forEach(
+            
+            telefone => {
 
-                );
+                // Encontrar o contato que é dono deste telefone
+                let contato = contatos.find(c => c.id == telefone.contatos_id);
 
-                // inserindo os telefones carregados nos seus respectivos contatos
-                telefones.forEach(
+                // Adicionar ao array de telefones desse contato o telefone da vez!
+                contato.telefones.push(telefone.telefone);
 
-                    telefone => {
-                        //encontrar o contato que é dono deste telefone
-                        let contato = contatos.find(c => c.id == telefone.contatos_id);
+            }
+        
+        );
 
-                        //adicionar ao o array de telefones desse contato o telefone da vez
-                        contato.telefones.push(telefone.telefone);
-                    }
+        res.status(200).json(contatos);
 
-                );
-
-        res.status(200).json({contatos});
     },
-    show: async (req,res)=>{
+    show: async (req,res) => {
         let sql = `SELECT id, nome FROM contatos WHERE usuarios_id=${uid} AND id=${req.params.id}`;
         let resultado = await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
         if(resultado.length == 0){
-            res.status(404).json({msg:"Contato inexistente"})
+            res.status(404).json({msg: "Contato inexistente"});
         } else {
             res.status(200).json(resultado[0]);
         }
     },
-    search: async (req,res)=>{
+    search: async (req,res) => {
         let trechoBuscado = req.query.q;
         let sql = `SELECT id, nome FROM contatos WHERE usuarios_id=${uid} AND nome LIKE '%${trechoBuscado}%'`;
         let resultado = await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
         res.status(200).json(resultado)
     },
-    create: async (req,res)=>{
+    create: async (req,res) => {
 
-        //capturando as infos do body
+        // Capturando as info do body
         let {nome, emails, telefones} = req.body;
 
-        //salvar o nome do contato
-        let sql = `INSERT INTO contatos (nome,usuarios_id) VALUES("${nome}","${uid}")`;
+        // Salvar o nome contato
+        let sql = `INSERT INTO contatos (nome,usuarios_id) VALUES ("${nome}", "${uid}")`;
         let resultado = await sequelize.query(sql,{type: sequelize.QueryTypes.INSERT});
-        console.log(resultado);
 
-        //levantar o id do contato recem criado
+        // Levantar o ID do contato recém criado
         let [idCriado, nLinhas] = resultado;
-        //salvar os emails na tabela emails
+
+        // Salvar os emails
         emails = emails.map((e) => {return {email:e, contatos_id:idCriado}});
-        sequelize.queryInterface.bulkInsert('emails',emails);
-        //salvar os telefones na tabela telefones
+        sequelize.queryInterface.bulkInsert('emails', emails);
+        
+        // Salvar os telefones
         telefones = telefones.map((t) => {return {telefone:t, contatos_id:idCriado}});
-        sequelize.queryInterface.bulkInsert('telefones',telefones);
-        // enviar uma resposta para o cliente
-        res.json({msg:"ok", idCriado});
-    },
-    destroy:(req,res)=>{
-        res.send('excluíndo o contato do ....')
-    },
-    update:(req,res)=>{
-        res.send('atualizando o contato do ...')
-    }
+        sequelize.queryInterface.bulkInsert('telefones', telefones);
 
+        // Enviar uma resposta para o cliente 
+        res.json({msg:"Ok", idCriado});
+
+    },
+    destroy: (req,res) => {res.send('função destroy')},
+    update: (req,res) => {res.send('função update')}
 }
-
-module.exports = contatoController;

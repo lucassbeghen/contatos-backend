@@ -2,35 +2,32 @@
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-  
     return queryInterface.createTable(
       'telefones',
-        {
-           id: {
-             type:Sequelize.DataTypes.INTEGER,
-             primaryKey: true,
-             autoIncrement: true
+      {
+        id: {
+          type: Sequelize.DataTypes.INTEGER,
+          primaryKey: true,
+          autoIncrement: true
+        },
+        telefone: {type: Sequelize.DataTypes.STRING(45), allowNull: false},
+        contatos_id: {
+          type: Sequelize.DataTypes.INTEGER,
+          allowNull: false,
+          references: {
+            model: {
+              tableName:'contatos'
             },
-            telefone: {type:Sequelize.DataTypes.STRING(45),allowNull:false},
-            contatos_id:{
-              type:Sequelize.DataTypes.INTEGER,
-              allowNull: false,
-            references: {
-              model:{
-                tableName:'contatos'
-              },
-              key:'id'
-            },
-            onDelete: 'cascade',
-            onUpdate: 'cascade'
-          }
+            key:'id'
+          },
+          onDelete: 'cascade',
+          onUpdate: 'cascade'
+        }
       }
-      );
+    )
   },
 
   async down (queryInterface, Sequelize) {
-
-      return queryInterface.dropTable('telefones');
-     
+    return  queryInterface.dropTable('telefones');
   }
 };
