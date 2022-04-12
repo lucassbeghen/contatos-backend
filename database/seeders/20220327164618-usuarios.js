@@ -3,30 +3,40 @@ const bcrypt = require('bcrypt');
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    
-     await queryInterface.bulkInsert(
-       'usuarios',
-       [
+    await queryInterface.bulkInsert(
+      'usuarios',
+      [
         {
-          id: 55,
+          id: 1,
           nome: 'Rafaela',
           email: 'rafaela@meta.com',
           senha: bcrypt.hashSync('123456', 10)
         },
         {
-          id: 47,
-          nome: 'Ligia',
-          email: 'ligia@google.com',
+          id: 2,
+          nome: 'Elvis',
+          email: 'elvis@meta.com',
           senha: bcrypt.hashSync('123456', 10)
         },
         {
-          id: 48,
-          nome: 'Elvis',
-          email: 'elvis@microsoft.com',
+          id: 3,
+          nome: 'Ligia',
+          email: 'ligia@meta.com',
+          senha: bcrypt.hashSync('123456', 10)
+        },
+        {
+          id: 4,
+          nome: 'Pablo',
+          email: 'pablo@meta.com',
+          senha: bcrypt.hashSync('123456', 10)
+        },
+        {
+          id: 5,
+          nome: 'Lucas',
+          email: 'lucas@meta.com',
           senha: bcrypt.hashSync('123456', 10)
         }
       ], {});
-
   },
 
   async down (queryInterface, Sequelize) {

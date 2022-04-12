@@ -16,12 +16,12 @@ module.exports = {
           allowNull: false,
           references: {
             model: {
-              tableName:'contatos'
+              tableName: 'contatos'
             },
-            key:'id'
+            key: 'id'
           },
-          onDelete: 'cascade',
-          onUpdate: 'cascade'
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
         }
       }
     )

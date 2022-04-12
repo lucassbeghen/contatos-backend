@@ -10,15 +10,13 @@ module.exports = {
           primaryKey: true,
           autoIncrement: true
         },
-        nome: {type: Sequelize.DataTypes.STRING(45), allowNull: false},
+        nome: { type: Sequelize.DataTypes.STRING(45), allowNull: false },
         usuarios_id: {
           type: Sequelize.DataTypes.INTEGER,
           allowNull: false,
           references: {
-            model: {
-              tableName:'usuarios'
-            },
-            key:'id'
+            model: {tableName:  'usuarios' },
+            key: 'id'
           }
         }
       }
