@@ -18,10 +18,10 @@ module.exports = {
             model: {
               tableName: 'contatos'
             },
-            key: 'id'
+            key: 'id',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
           },
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE'
         }
       }
     )
