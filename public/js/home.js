@@ -67,25 +67,27 @@ const buscaContatos = trecho => {
 
 const carregaContatos =  async ()=> {
 
-    // Carregando token do sessionStorage
+    //Carregando token do sessionStorage
     let token = sessionStorage.getItem('token');
 
     let resposta = await fetch(
-        '/contatos',
+        '/contatos' ,
         {
-            method: "GET",
+            method:"GET",
             headers: {
                 authorization: `bearer ${token}`
             }
         }
     );
     let contatos = await resposta.json();
-    showContatos(contatos);
-
+    showContatos(contatos)
+    
 }
 
+
+
 const login = async dadosDeLogin =>{
-    
+
     let response = await fetch(
         '/login',
         {
@@ -96,34 +98,34 @@ const login = async dadosDeLogin =>{
             }
         }
     );
+    
+    //verificando se o login obteve sucesso
 
-    // Verificando se o login obteve sucesso...
-    if(response.status == 403){
-        
-        alert("Login Inválido");
-        return;
+        if(response.status == 403){
 
-    } else if(response.status == 200){
+            alert("Login inválido !")
+            return;
 
-        // Acessar o conteúdo da reponse
-        let dados = await response.json();
+        } else if (response.status == 200){
 
-        // Salvar o token
-        sessionStorage.setItem('token', dados.token);
+            //acessar o conteudo da response
+            let dados = await response.json();
 
-        // Mostrar o app container container e esconder o login;
-        appContainer.style.display = "block";
-        loginContainer.style.display = "none";
+            //salvar o token
+            sessionStorage.setItem('token', dados.token);
 
-        // Carregar os contatos
-        carregaContatos();
+            //mostrar o app container e esconder o login
+            appContainer.style.display = "block";
+            loginContainer.style.display = "none";
 
-    } else {
+            //carregar os contatos
+            carregaContatos();
 
-        alert(`Erro inesperado. Entre em contato com o suporte.\n${response.statusText}`);
+        }else {
 
-    }
+                alert(`Erro inesperado ! Entre em contato com o suporte ! \n ${response.statusText}`);
 
+        }
 }
 
 //bloco 3 -  events listener

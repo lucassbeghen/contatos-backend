@@ -32,7 +32,7 @@ module.exports = {
         },
         {
           id: 6 ,
-          nome: 'Sicrano',
+          nome: 'Rasta',
           usuarios_id: 5
         },
       ], {});

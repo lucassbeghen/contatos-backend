@@ -10,13 +10,13 @@
 
 const {sequelize} = require('../database/models');
 
-// const uid = 1;
+//const uid = 1;
 
 module.exports = {
     index: async (req,res) => {
 
         // Capturar o id do usuário que está mandando a requisição:
-        let uid = req.usuario.id;
+       let uid = req.usuario.id;
         
         let sql = `SELECT id, nome FROM contatos WHERE usuarios_id=${uid}`;
         let contatos = await sequelize.query(sql, {type:sequelize.QueryTypes.SELECT});
